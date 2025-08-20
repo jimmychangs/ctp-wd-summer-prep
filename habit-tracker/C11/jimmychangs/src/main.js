@@ -15,6 +15,8 @@ if (dateStartedInput && !dateStartedInput.value) {
 habitForm.addEventListener('submit', handleAddHabit);
 habitList.addEventListener('click', handleDeleteHabit);
 habitList.addEventListener('click', handleToggleToday);
+habitList.addEventListener('click', handleEditHabit);
+
 
 function loadHabits() {
   try {
@@ -58,6 +60,38 @@ function handleAddHabit(event) {
   habitForm.reset();
   console.log(habit)   
   if (dateStartedInput) dateStartedInput.value = todayKey();
+
+}
+
+function handleToggleToday(event) {
+  if (!event.target.classList.contains('toggle_today')) return;
+  const index = Number(event.target.getAttribute('data-index'));
+  const habit = habits[index];
+  if (!habit) return;
+
+  const key = todayKey();                // e.g., "2025-08-20"
+  habit.logs[key] = !habit.logs[key];    // flip true/false
+  saveHabits(); 
+  renderHabits();
+}
+
+function handleEditHabit(event) {
+  if (!event.target.classList.contains('edit_habit')) return;
+  const index = Number(event.target.getAttribute('data-index'));
+  const habit = habits[index];
+  if (!habit) return;
+
+  // For now, a simple prompt-based edit (quick to implement):
+  const newName = prompt("Edit habit name:", habit.name);
+  const newCategory = prompt("Edit category:", habit.category);
+  const newTarget = prompt("Edit target streak:", habit.targetStreak);
+
+  if (newName !== null) habit.name = newName.trim() || habit.name;
+  if (newCategory !== null) habit.category = newCategory.trim() || habit.category;
+  if (newTarget !== null && !isNaN(newTarget)) habit.targetStreak = Number(newTarget);
+
+  saveHabits();
+  renderHabits();
 }
 
 
@@ -81,12 +115,13 @@ function renderHabits() {
       return `
         <li>
           <strong>${habit.name}</strong> | (${habit.category})
-          Target: ${habit.targetStreak} | Started: ${habit.dateStarted}<br>
+          | Target: ${habit.targetStreak} | Started: ${habit.dateStarted}<br>
            Current Streak: ${currentStreak} |  Longest Streak: ${longestStreak}
           <br>
           <button data-index="${index}" class="toggle_today">
             ${doneToday ? 'Undo Today' : 'Done Today'}
           </button>
+          <button data-index="${index}" class="edit_habit">Edit</button>
           <button data-index="${index}" class="delete_habit">Delete</button>
         </li>
       `;
@@ -94,17 +129,6 @@ function renderHabits() {
     .join('');
 }
 
-function handleToggleToday(event) {
-  if (!event.target.classList.contains('toggle_today')) return;
-  const index = Number(event.target.getAttribute('data-index'));
-  const habit = habits[index];
-  if (!habit) return;
-
-  const key = todayKey();                // e.g., "2025-08-20"
-  habit.logs[key] = !habit.logs[key];    // flip true/false
-  saveHabits(); 
-  renderHabits();
-}
 
 function todayKey(d = new Date()) {
   const y = d.getFullYear();
