@@ -67,7 +67,7 @@ function saveHabits() {
 } 
 
 
-// ---------------- core functions ----------------
+// core functions
 
 // add new habit
 function handleAddHabit(event) {
@@ -87,7 +87,7 @@ function handleAddHabit(event) {
   saveHabits();
   renderHabits();
   habitForm.reset();
-  console.log(habit)   
+  console.log(habit) // to check developer tools for debugging  
   if (dateStartedInput) dateStartedInput.value = todayKey();
 
 }
@@ -153,6 +153,7 @@ function renderHabits() {
     .join('');
 }
 
+// used for setting date in YYYY-MM-DD format
 function todayKey(d = new Date()) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
