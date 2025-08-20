@@ -13,9 +13,38 @@ if (dateStartedInput && !dateStartedInput.value) {
 
 // event listeners
 habitForm.addEventListener('submit', handleAddHabit);
-habitList.addEventListener('click', handleDeleteHabit);
-habitList.addEventListener('click', handleToggleToday);
-habitList.addEventListener('click', handleEditHabit);
+habitList.addEventListener('click', (event) => {
+  const index = Number(event.target.getAttribute('data-index'));
+  if (isNaN(index)) return; // safety
+
+  if (event.target.classList.contains('toggle_today')) {
+    handleToggleToday(index);
+  } 
+  else if (event.target.classList.contains('delete_habit')) {
+    handleDeleteHabit(index);
+  }
+  else if (event.target.classList.contains('edit_habit')) {
+    habits[index].editing = true;
+    renderHabits();
+  }
+  else if (event.target.classList.contains('cancel_edit')) {
+    habits[index].editing = false;
+    renderHabits();
+  }
+  else if (event.target.classList.contains('save_edit')) {
+    const name = document.querySelector(`.edit_name[data-index="${index}"]`).value.trim();
+    const category = document.querySelector(`.edit_category[data-index="${index}"]`).value.trim();
+    const target = Number(document.querySelector(`.edit_target[data-index="${index}"]`).value);
+
+    habits[index].name = name || habits[index].name;
+    habits[index].category = category || habits[index].category;
+    habits[index].targetStreak = isNaN(target) ? habits[index].targetStreak : target;
+
+    habits[index].editing = false;
+    saveHabits();
+    renderHabits();
+  }
+});
 
 
 function loadHabits() {
@@ -63,15 +92,12 @@ function handleAddHabit(event) {
 
 }
 
-function handleToggleToday(event) {
-  if (!event.target.classList.contains('toggle_today')) return;
-  const index = Number(event.target.getAttribute('data-index'));
+function handleToggleToday(index) {
   const habit = habits[index];
   if (!habit) return;
-
-  const key = todayKey();                // e.g., "2025-08-20"
-  habit.logs[key] = !habit.logs[key];    // flip true/false
-  saveHabits(); 
+  const key = todayKey();
+  habit.logs[key] = !habit.logs[key];
+  saveHabits();
   renderHabits();
 }
 
@@ -96,13 +122,10 @@ function handleEditHabit(event) {
 
 
 // delete habit
-function handleDeleteHabit(event) {
-  if (event.target.classList.contains('delete_habit')) {
-    const index = event.target.getAttribute('data-index');
-    habits.splice(index, 1);
-    saveHabits();
-    renderHabits();
-  }
+function handleDeleteHabit(index) {
+  habits.splice(index, 1);
+  saveHabits();
+  renderHabits();
 }
 
 function renderHabits() {
@@ -112,23 +135,43 @@ function renderHabits() {
       const currentStreak = calculateCurrentStreak(habit);
       const longestStreak = calculateLongestStreak(habit);
 
-      return `
-        <li>
-          <strong>${habit.name}</strong> | (${habit.category})
-          | Target: ${habit.targetStreak} | Started: ${habit.dateStarted}<br>
-           Current Streak: ${currentStreak} |  Longest Streak: ${longestStreak}
-          <br>
-          <button data-index="${index}" class="toggle_today">
-            ${doneToday ? 'Undo Today' : 'Done Today'}
-          </button>
-          <button data-index="${index}" class="edit_habit">Edit</button>
-          <button data-index="${index}" class="delete_habit">Delete</button>
-        </li>
-      `;
+      if (habit.editing) {
+        // Inline editing form
+        return `
+          <li>
+            <label for="edit_name">Habit Name:</label>
+            <input data-index="${index}" class="edit_name" value="${habit.name}">
+            <label for="edit_category">Category:</label>
+            <select data-index="${index}" class="edit_category" value="${habit.category}">
+              <option value="Health">Health</option>
+              <option value="Productivity">Productivity</option>
+              <option value="Learning">Learning</option>
+            </select> 
+            <label for="edit_target">Target:</label>
+            <input data-index="${index}" class="edit_target" type="number" value="${habit.targetStreak}">
+            <button data-index="${index}" class="save_edit">Save</button>
+            <button data-index="${index}" class="cancel_edit">Cancel</button>
+          </li>
+        `;
+      } else {
+        // Normal display
+        return `
+          <li>
+            <strong>${habit.name}</strong> | (${habit.category})
+            | Target: ${habit.targetStreak} | Started: ${habit.dateStarted}<br>
+             Current Streak: ${currentStreak} |  Longest Streak: ${longestStreak}
+            <br>
+            <button data-index="${index}" class="toggle_today">
+              ${doneToday ? 'Undo Today' : 'Done Today'}
+            </button>
+            <button data-index="${index}" class="edit_habit">Edit</button>
+            <button data-index="${index}" class="delete_habit">Delete</button>
+          </li>
+        `;
+      }
     })
     .join('');
 }
-
 
 function todayKey(d = new Date()) {
   const y = d.getFullYear();
