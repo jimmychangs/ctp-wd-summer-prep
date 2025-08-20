@@ -38,6 +38,13 @@ h1, h2, h3 {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
+#habit_category,
+#habit_name,
+#date_started,
+#target_streak {
+    color: #b34ad3;
+}
+
 button {
   padding: 6px 12px;
   border: none;
