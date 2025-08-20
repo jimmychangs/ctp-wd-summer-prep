@@ -46,7 +46,7 @@ habitList.addEventListener('click', (event) => {
   }
 });
 
-
+// loads habits from local storage
 function loadHabits() {
   try {
     const stored = localStorage.getItem('habits');
@@ -61,15 +61,15 @@ function loadHabits() {
     return [];
   }
 }
-
+// saves habits to local storage
 function saveHabits() {
     localStorage.setItem('habits', JSON.stringify(habits));
-} //saves habits to local storage
+} 
 
 
 // ---------------- core functions ----------------
 
-// add a new habit
+// add new habit
 function handleAddHabit(event) {
   event.preventDefault();
   const data = new FormData(event.target);
@@ -92,6 +92,7 @@ function handleAddHabit(event) {
 
 }
 
+// toggles if habit is completed today
 function handleToggleToday(index) {
   const habit = habits[index];
   if (!habit) return;
@@ -101,33 +102,14 @@ function handleToggleToday(index) {
   renderHabits();
 }
 
-function handleEditHabit(event) {
-  if (!event.target.classList.contains('edit_habit')) return;
-  const index = Number(event.target.getAttribute('data-index'));
-  const habit = habits[index];
-  if (!habit) return;
-
-  // For now, a simple prompt-based edit (quick to implement):
-  const newName = prompt("Edit habit name:", habit.name);
-  const newCategory = prompt("Edit category:", habit.category);
-  const newTarget = prompt("Edit target streak:", habit.targetStreak);
-
-  if (newName !== null) habit.name = newName.trim() || habit.name;
-  if (newCategory !== null) habit.category = newCategory.trim() || habit.category;
-  if (newTarget !== null && !isNaN(newTarget)) habit.targetStreak = Number(newTarget);
-
-  saveHabits();
-  renderHabits();
-}
-
-
-// delete habit
+// deletes habit
 function handleDeleteHabit(index) {
   habits.splice(index, 1);
   saveHabits();
   renderHabits();
 }
 
+// renders habits
 function renderHabits() {
   habitList.innerHTML = habits
     .map((habit, index) => {
@@ -136,7 +118,6 @@ function renderHabits() {
       const longestStreak = calculateLongestStreak(habit);
 
       if (habit.editing) {
-        // Inline editing form
         return `
           <li>
             <label for="edit_name">Habit Name:</label>
@@ -154,7 +135,6 @@ function renderHabits() {
           </li>
         `;
       } else {
-        // Normal display
         return `
           <li>
             <strong>${habit.name}</strong> | (${habit.category})
@@ -180,7 +160,7 @@ function todayKey(d = new Date()) {
   return `${y}-${m}-${day}`;
 }
 
-// ---------- streak helpers ----------
+// streak helpers
 function calculateCurrentStreak(habit) {
   const logs = habit.logs || {};
   let streak = 0;
@@ -188,11 +168,12 @@ function calculateCurrentStreak(habit) {
 
   while (logs[todayKey(d)]) {
     streak++;
-    d.setDate(d.getDate() - 1); // move to previous day
+    d.setDate(d.getDate() - 1); 
   }
   return streak;
 }
 
+// calculates longest streak by seeing if the current date is the previous date + 1
 function calculateLongestStreak(habit) {
   const logs = habit.logs || {};
   const dates = Object.keys(logs).filter(day => logs[day]).sort();
