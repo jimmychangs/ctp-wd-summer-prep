@@ -84,7 +84,7 @@ function handleAddHabit(event) {
   if (!habit.name) return;
 
   habits.push(habit);
-  saveHabits();        // <-- persist
+  saveHabits();
   renderHabits();
   habitForm.reset();
   console.log(habit)   
@@ -142,10 +142,10 @@ function renderHabits() {
             <label for="edit_name">Habit Name:</label>
             <input data-index="${index}" class="edit_name" value="${habit.name}">
             <label for="edit_category">Category:</label>
-            <select data-index="${index}" class="edit_category" value="${habit.category}">
-              <option value="Health">Health</option>
-              <option value="Productivity">Productivity</option>
-              <option value="Learning">Learning</option>
+            <select data-index="${index}" class="edit_category">
+              <option value="Health" ${habit.category === "Health" ? "selected" : ""}>Health</option>
+              <option value="Productivity" ${habit.category === "Productivity" ? "selected" : ""}>Productivity</option>
+              <option value="Learning" ${habit.category === "Learning" ? "selected" : ""}>Learning</option>
             </select> 
             <label for="edit_target">Target:</label>
             <input data-index="${index}" class="edit_target" type="number" value="${habit.targetStreak}">
