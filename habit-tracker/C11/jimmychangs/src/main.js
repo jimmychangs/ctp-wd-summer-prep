@@ -5,11 +5,10 @@ form.addEventListener('submit', (event) => {
     event.preventDefault()
     
     const data = new FormData(event.target)
-    
-    //console.log(Array.from(data.keys()))
 
     const habit = {
         name: data.get('habit_name'),
+        category: data.get('habit_category'),
         targetStreak: Number(data.get('target_streak'))
     }
 
@@ -17,24 +16,14 @@ form.addEventListener('submit', (event) => {
     console.log(JSON.stringify(habits))
 
     renderHabits(habits)
-
-
 })
 
 const renderHabits = (habits) => {
     const habitList = document.getElementById('habit_list')
 
-    // for (let i = 0; i < habits.length; i++) {
-    //     const habit = habits[i]
-
-    //     const li = document.createElement('li')
-    //     li.textContent = `${habit.name} Target Streak: ${habit.targetStreak}`
-    //     habitList.appendChild(li)
-    // }
-
     habitList.innerHTML = `
         ${
-            habits.map(habit => `<li>${habit.name} ${habit.targetStreak}</li>`).join('\n')
+            habits.map(habit => `<li>${habit.name} ${habit.category} ${habit.targetStreak}</li>`).join('\n')
         }
     `
 }
