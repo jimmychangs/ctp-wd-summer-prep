@@ -51,7 +51,6 @@ function loadHabits() {
   try {
     const stored = localStorage.getItem('habits');
     const arr = stored ? JSON.parse(stored) : [];
-    // normalize older entries just in case
     arr.forEach(h => {
       if (!h.logs) h.logs = {};
       if (!h.dateStarted) h.dateStarted = todayKey();
